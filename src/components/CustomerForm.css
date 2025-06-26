@@ -1,0 +1,38 @@
+.customer-form {
+  display: flex;
+  flex-direction: column;
+  background-color: #2e2e2e;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  margin: auto;
+}
+
+.customer-form h3 {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.customer-form input {
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #555;
+  background-color: #1f1f1f;
+  color: #fff;
+  border-radius: 4px;
+}
+
+.customer-form button {
+  background-color: #72c7f8;
+  color: #000;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.customer-form button:hover {
+  background-color: #5ab2e0;
+}
