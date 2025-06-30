@@ -1,38 +1,50 @@
+.customer-form-wrapper {
+  max-width: 500px;
+  margin: 80px auto;
+  padding: 40px;
+  background-color: #111;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  color: white;
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
 .customer-form {
   display: flex;
   flex-direction: column;
-  background-color: #2e2e2e;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  margin: auto;
-}
-
-.customer-form h3 {
-  text-align: center;
-  color: #fff;
-  margin-bottom: 20px;
+  gap: 15px;
 }
 
 .customer-form input {
-  margin-bottom: 15px;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #555;
-  background-color: #1f1f1f;
-  color: #fff;
-  border-radius: 4px;
-}
-
-.customer-form button {
-  background-color: #72c7f8;
-  color: #000;
   padding: 10px;
   border: none;
   border-radius: 5px;
+  background-color: #222;
+  color: white;
+  font-size: 14px;
+}
+
+.customer-form input::placeholder {
+  color: #aaa;
+}
+
+.customer-form button {
+  padding: 12px;
+  background-color: #30e3ca;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .customer-form button:hover {
-  background-color: #5ab2e0;
+  background-color: #2cc3b4;
 }

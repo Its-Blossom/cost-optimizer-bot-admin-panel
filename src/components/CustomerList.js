@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import Modal from "react-modal";
-import CustomerForm from "./CustomerForm"; // ✅ Make sure this file exists and is correctly named
+import CustomerForm from "./CustomerForm";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -41,13 +41,13 @@ function CustomerList() {
     setSelectedCustomer(null);
   };
 
-  const handleEditSubmit = (updatedCustomer) => {
-    fetch(`https://pp4lxb664h.execute-api.us-east-1.amazonaws.com/Prod/customers/${updatedCustomer.customer_id}`, {
+  const handleEditSubmit = (customerData) => {
+    fetch(`https://pp4lxb664h.execute-api.us-east-1.amazonaws.com/Prod/customers/${customerData.customer_id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updatedCustomer),
+      body: JSON.stringify(customerData),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Update failed");
@@ -89,7 +89,7 @@ function CustomerList() {
         contentLabel="Edit Customer Modal"
         style={modalStyles}
       >
-        <button onClick={closeModal} style={styles.closeButton} aria-label="Close modal">
+        <button onClick={closeModal} style={styles.closeButton}>
           <FontAwesomeIcon icon={faTimes} />
         </button>
         <CustomerForm
@@ -147,8 +147,6 @@ const styles = {
     cursor: "pointer",
     zIndex: 1001,
   }
-
-
 };
 
 const modalStyles = {
@@ -172,9 +170,5 @@ const modalStyles = {
     zIndex: 1000,
   },
 };
-
-
-
-
 
 export default CustomerList;

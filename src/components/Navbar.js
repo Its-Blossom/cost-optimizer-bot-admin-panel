@@ -1,33 +1,51 @@
-import React from "react";
-import { AppBar, Tabs, Tab, Toolbar, Typography } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+// src/components/Navbar.js
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Auth } from 'aws-amplify';
+import './Navbar.css';
 
-function Navbar() {
-  const location = useLocation();
+const Navbar = () => {
   const navigate = useNavigate();
 
-  const handleChange = (event, newValue) => {
-    navigate(newValue);
+  const handleLogout = async () => {
+    try {
+      await Auth.signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          🧠 Cost Optimizer Admin
-        </Typography>
-        <Tabs
-          value={location.pathname === "/subscribe" ? "/subscribe" : "/"}
-          onChange={handleChange}
-          textColor="inherit"
-          indicatorColor="secondary"
-        >
-          <Tab label="Customer List" value="/" />
-          <Tab label="Subscribe New" value="/subscribe" />
-        </Tabs>
-      </Toolbar>
-    </AppBar>
+    <nav className="navbar">
+      <div className="logo">🧠 Cost Optimizer Admin</div>
+      <ul className="nav-links">
+        <li>
+          <NavLink
+            to="/customers"
+            className={({ isActive }) =>
+              isActive ? 'nav-link active' : 'nav-link'
+            }
+          >
+            Customer List
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="/customers/new"
+            className={({ isActive }) =>
+              isActive ? 'nav-link active' : 'nav-link'
+            }
+          >
+            Subscribe New
+          </NavLink>
+        </li>
+        <li>
+          <button onClick={handleLogout} className="logout-btn">Logout</button>
+        </li>
+      </ul>
+    </nav>
   );
-}
+};
 
 export default Navbar;
