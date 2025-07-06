@@ -4,6 +4,8 @@ import Modal from "react-modal";
 import CustomerForm from "./CustomerForm";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
+const API_BASE_URL = "https://apvgn11lf7.execute-api.us-east-1.amazonaws.com/Prod";
 
 Modal.setAppElement("#root");
 
@@ -19,10 +21,13 @@ function CustomerList() {
 
   const fetchCustomers = () => {
     setLoading(true);
-    fetch("https://pp4lxb664h.execute-api.us-east-1.amazonaws.com/Prod/customers")
+    fetch("https://apvgn11lf7.execute-api.us-east-1.amazonaws.com/Prod/customers")
       .then((res) => res.json())
       .then((data) => {
-        setCustomers(data);
+        const activeCustomers = Array.isArray(data)
+          ? data.filter((customer) => customer.status === "active")
+          : [];
+        setCustomers(activeCustomers);
         setLoading(false);
       })
       .catch((err) => {
@@ -36,13 +41,51 @@ function CustomerList() {
     setModalIsOpen(true);
   };
 
+  const handleDeactivate = async (customer) => {
+    const isReactivating = customer.status === "inactive";
+    const actionText = isReactivating ? "Reactivate" : "Deactivate";
+
+    if (!window.confirm(`${actionText} ${customer.name}?`)) return;
+
+    try {
+      const newStatus = isReactivating ? "active" : "inactive";
+
+      await fetch(`${API_BASE_URL}/customers/${customer.customer_id}/deactivate`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      toast.success(`Customer ${actionText.toLowerCase()}d`);
+      fetchCustomers();
+    } catch (err) {
+      toast.error(`Failed to ${actionText.toLowerCase()} customer`);
+    }
+  };
+
+  const handleDelete = async (customer) => {
+    if (!window.confirm(`Permanently delete ${customer.name}?`)) return;
+    try {
+      await fetch(`${API_BASE_URL}/customers/${customer.customer_id}`, {
+        method: "DELETE",
+        headers: {
+        "Content-Type": "application/json",
+      },
+      });
+      toast.success("Customer deleted");
+      fetchCustomers(); // refresh list
+    } catch (err) {
+      toast.error("Failed to delete");
+    }
+  };
+
   const closeModal = () => {
     setModalIsOpen(false);
     setSelectedCustomer(null);
   };
 
   const handleEditSubmit = (customerData) => {
-    fetch(`https://pp4lxb664h.execute-api.us-east-1.amazonaws.com/Prod/customers/${customerData.customer_id}`, {
+    fetch(`https://apvgn11lf7.execute-api.us-east-1.amazonaws.com/Prod/customers/${customerData.customer_id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -73,11 +116,46 @@ function CustomerList() {
         <ul style={styles.list}>
           {customers.map((customer) => (
             <li key={customer.customer_id} style={styles.listItem}>
-              <span>
-                <strong>ID:</strong> {customer.customer_id} |{" "}
-                <strong>Email:</strong> {customer.email_address}
-              </span>
-              <button style={styles.editButton} onClick={() => openModal(customer)}>Edit</button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  width: "100%",
+                }}
+              >
+                <span style={{ flex: 1 }}>
+                  <strong>ID:</strong> {customer.customer_id} |{" "}
+                  <strong>Email:</strong> {customer.email_address} |{" "}
+                  <strong>Status:</strong>{" "}
+                  <span style={customer.status === "inactive" ? styles.statusInactive : styles.statusActive}>
+                    {customer.status || "unknown"}
+                  </span>
+                </span>
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    marginTop: "8px",
+                    justifyContent: "flex-end",
+                    flexShrink: 0,
+                  }}
+                >
+                  <button style={styles.editButton} onClick={() => openModal(customer)}>Edit</button>
+                  <button
+                    style={styles.inactiveButton}
+                    onClick={() => handleDeactivate(customer)}
+                    title={customer.status === "inactive" ? "Reactivate" : "Deactivate"}
+                  >
+                    {customer.status === "inactive" ? "Reactivate" : "Deactivate"}
+                  </button>
+                  <button style={styles.deleteButton} onClick={() => handleDelete(customer)} title="Delete">
+                    🗑️
+                  </button>
+                </div>
+              </div>
             </li>
           ))}
         </ul>
@@ -101,12 +179,13 @@ function CustomerList() {
   );
 }
 
+
 const styles = {
   container: {
-    padding: "2rem",
-    backgroundColor: "#121212",
-    minHeight: "100vh",
-    color: "#fff",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",   // center horizontally
+    padding: "20px",
   },
   header: {
     textAlign: "center",
@@ -131,10 +210,28 @@ const styles = {
   editButton: {
     backgroundColor: "#36d7b7",
     color: "#000",
-    border: "none",
+    border: "nonde",
     padding: "0.5rem 1rem",
     borderRadius: "4px",
     cursor: "pointer",
+  },
+  deleteButton: {
+    backgroundColor: "#f44336", // red
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    padding: "6px px",
+    cursor: "pointer",
+    marginRight: "8px",
+  },
+  inactiveButton: {
+    backgroundColor: "#ff9800", // orange
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    padding: "6px 12px",
+    cursor: "pointer",
+    marginRight: "1px",
   },
   closeButton: {
     position: "absolute",
@@ -146,6 +243,14 @@ const styles = {
     color: "#fff",
     cursor: "pointer",
     zIndex: 1001,
+  },
+  statusActive: {
+    color: "lightgreen",
+    fontWeight: "bold",
+  },
+  statusInactive: {
+    color: "#f44336",
+    fontWeight: "bold",
   }
 };
 

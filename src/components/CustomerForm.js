@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './CustomerForm.css';
 
 function CustomerForm({ customer = null, onSubmit }) {
@@ -8,6 +9,8 @@ function CustomerForm({ customer = null, onSubmit }) {
     slack_webhook_url: '',
     email_address: '',
   });
+
+  const navigate = useNavigate(); // <-- Needed for redirect
 
   useEffect(() => {
     if (customer) {
@@ -31,16 +34,16 @@ function CustomerForm({ customer = null, onSubmit }) {
     e.preventDefault();
 
     if (onSubmit) {
-      // Edit mode
-      onSubmit(formData);
+      // Edit mode or passed submit handler
+      await onSubmit(formData);
       return;
     }
 
-    // Add mode (fallback)
+    // Add mode fallback
     console.warn("No onSubmit prop provided — using default add logic");
 
     try {
-      const response = await fetch("https://pp4lxb664h.execute-api.us-east-1.amazonaws.com/Prod/customers", {
+      const response = await fetch("https://apvgn11lf7.execute-api.us-east-1.amazonaws.com/Prod/customers", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,6 +58,9 @@ function CustomerForm({ customer = null, onSubmit }) {
       const result = await response.json();
       console.log("Customer created:", result);
       alert("Customer created successfully!");
+
+      // ✅ Redirect using navigate (instead of window.location.href)
+      navigate("/customers/new");
     } catch (err) {
       console.error("Error creating customer:", err);
       alert("Failed to create customer. Check console for details.");
